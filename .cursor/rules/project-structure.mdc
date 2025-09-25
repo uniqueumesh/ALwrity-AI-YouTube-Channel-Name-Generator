@@ -1,0 +1,29 @@
+---
+alwaysApply: true
+---
+# ALwrity Project Structure and Principles
+
+This repository contains the ALwrity AI YouTube Channel Name Generator. The authoritative plan is in [PLAN.md](mdc:PLAN.md).
+
+## Core Principles
+- Single‑screen Streamlit UI, no sidebar. All inputs on the main page.
+- Users provide their Gemini API key via the UI. Do not persist keys.
+- Target model: Gemini 2.5 Flash.
+- Keep components loosely coupled so work/errors in one part do not break others.
+
+## Intended Folder Layout (when implemented)
+```
+app/
+  ui/       # Streamlit widgets and layout only
+  core/     # Prompt building, input validation, output parsing (no network)
+  services/ # Gemini API interactions and external IO
+  utils/    # Formatting, de‑duplication, clipboard/export helpers
+  state/    # Session state helpers
+assets/     # Logos, screenshots
+```
+
+## Development Guidance
+- Keep business logic out of `ui/`. UI files should call functions from `core/` and `services/`.
+- `core/` must be deterministic and testable without network.
+- `services/` should be thin and mockable. Handle all network/retry concerns here.
+- Respect the acceptance criteria in [PLAN.md](mdc:PLAN.md).
