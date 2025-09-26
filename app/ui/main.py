@@ -113,25 +113,38 @@ def render_main_page() -> None:
             st.warning("No ideas were returned. Try adjusting your inputs and generate again.")
             return
 
+        # Persist results in session so UI doesn't reset on reruns
+        state["ideas"] = ideas
+        state["explanations"] = explanations
+
+    # Render results if present in session (prevents reset on reruns)
+    session_ideas: list[str] = state.get("ideas", [])
+    session_explanations: list[str] = state.get("explanations", [])
+    if session_ideas:
         st.subheader("Results")
         shortlist = state.setdefault("shortlist", [])
 
-        for idx, idea in enumerate(ideas):
+        for idx, idea in enumerate(session_ideas):
             with st.container(border=True):
                 st.markdown(f"**{idea}**")
-                if explain and idx < len(explanations):
-                    st.caption(explanations[idx])
+                if idx < len(session_explanations) and session_explanations[idx]:
+                    st.caption(session_explanations[idx])
                 cols = st.columns(3)
                 with cols[0]:
                     st.button("Copy name", key=f"copy_name_{idx}", on_click=lambda n=idea: st.session_state.update({"clipboard": n}))
                 with cols[1]:
-                    both = f"{idea} — {explanations[idx]}" if explain and idx < len(explanations) else idea
+                    both = f"{idea} — {session_explanations[idx]}" if idx < len(session_explanations) and session_explanations[idx] else idea
                     st.button("Copy name + explanation", key=f"copy_both_{idx}", on_click=lambda b=both: st.session_state.update({"clipboard": b}))
                 with cols[2]:
                     def add_to_shortlist(name: str, meaning: str | None) -> None:
                         shortlist.append({"name": name, "meaning": meaning})
 
-                    st.button("Add to shortlist", key=f"shortlist_{idx}", on_click=add_to_shortlist, args=(idea, explanations[idx] if explain and idx < len(explanations) else None))
+                    st.button(
+                        "Add to shortlist",
+                        key=f"shortlist_{idx}",
+                        on_click=add_to_shortlist,
+                        args=(idea, session_explanations[idx] if idx < len(session_explanations) and session_explanations[idx] else None),
+                    )
 
         st.divider()
         st.subheader("Shortlist")
@@ -140,6 +153,21 @@ def render_main_page() -> None:
         else:
             for item in shortlist:
                 st.write(item["name"]) if not item.get("meaning") else st.write(f"{item['name']} — {item['meaning']}")
+
+        # Optional Logo Section (does not affect core generation)
+        try:
+            from app.ui.logo import render_logo_section
+            available_names = list(session_ideas) + [i["name"] for i in shortlist if isinstance(i, dict) and i.get("name")]
+            # De-duplicate while preserving order
+            seen = set()
+            unique_names: list[str] = []
+            for n in available_names:
+                if n not in seen:
+                    seen.add(n)
+                    unique_names.append(n)
+            render_logo_section(unique_names)
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
