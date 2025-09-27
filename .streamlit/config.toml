@@ -1,8 +1,0 @@
-[theme]
-base="light"
-primaryColor="#1f7aec"
-font="sans serif"
-
-[client]
-toolbarMode="auto"
-
