@@ -71,13 +71,6 @@ def main():
         ''', unsafe_allow_html=True)
         user_gemini_api_key = st.text_input("Gemini API Key", type="password", help="Paste your Gemini API Key here if you have one. Otherwise, the tool will use the default key if available.")
 
-    # Debug Section (temporary)
-    debug_mode = st.checkbox("🔧 Debug Mode", value=False)
-    if debug_mode:
-        st.session_state['debug_mode'] = True
-        st.code("Debug mode enabled - check console for detailed error messages")
-    else:
-        st.session_state['debug_mode'] = False
     
     # Main Input Section
     with st.expander("**PRO-TIP** - Follow the steps below for best results.", expanded=True):
@@ -133,12 +126,6 @@ def main():
             if not input_description.strip():
                 st.error('**🫣 Please enter a channel description to generate names!**')
             else:
-                # Debug information
-                debug_mode = st.session_state.get('debug_mode', False)
-                if debug_mode:
-                    st.write(f"Debug: Description: {input_description}")
-                    st.write(f"Debug: Language: {input_language}")
-                    st.write(f"Debug: Tone: {input_tone}")
                 
                 channel_names = generate_youtube_names(
                     input_description, input_language, input_tone, input_variants, 
@@ -147,8 +134,6 @@ def main():
                 
                 if channel_names:
                     st.session_state['generated_names'] = channel_names
-                    if debug_mode:
-                        st.write(f"Debug: Generated {len(channel_names)} names")
                 else:
                     st.error("💥 **Failed to generate channel names. Please try again!**")
                     st.info("💡 **Tips to fix this:**")
@@ -417,14 +402,10 @@ def display_results(names_text):
         with st.container(border=True):
             st.markdown(f"**{name}**")
             
-            cols = st.columns(4)
+            cols = st.columns(2)
             with cols[0]:
                 st.button("Copy", key=f"copy_{idx}", on_click=lambda n=name: st.session_state.update({"clipboard": n}))
             with cols[1]:
-                st.button("Shortlist", key=f"shortlist_{idx}")
-            with cols[2]:
-                st.button("Download", key=f"download_{idx}")
-            with cols[3]:
                 st.button("Generate Logo", key=f"logo_{idx}")
     
     # Logo Generation Section
