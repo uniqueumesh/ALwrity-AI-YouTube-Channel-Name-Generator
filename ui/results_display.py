@@ -5,8 +5,6 @@ Results display logic for generated names.
 import streamlit as st
 import streamlit.components.v1 as components
 import orjson
-import pandas as pd
-import io
 import html as html_lib
 from core.fallback_generator import generate_fallback_names
 from logo_generator import render_logo_section
@@ -149,31 +147,3 @@ def display_results(names_text):
     # Logo Generation Section
     if names:
         render_logo_section(names)
-    
-    # Export functionality
-    st.markdown('<h4 style="margin-top:2rem;">📤 Export Options</h4>', unsafe_allow_html=True)
-    
-    # CSV Export
-    df = pd.DataFrame({'Channel Name': names})
-    csv_buffer = io.StringIO()
-    df.to_csv(csv_buffer, index=False)
-    csv_data = csv_buffer.getvalue()
-    
-    st.download_button(
-        label="Download as CSV",
-        data=csv_data,
-        file_name="youtube_channel_names.csv",
-        mime="text/csv"
-    )
-    
-    # Excel Export
-    excel_buffer = io.BytesIO()
-    df.to_excel(excel_buffer, index=False, engine='openpyxl')
-    excel_buffer.seek(0)
-    
-    st.download_button(
-        label="Download as Excel",
-        data=excel_buffer,
-        file_name="youtube_channel_names.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
