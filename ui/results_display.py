@@ -118,7 +118,7 @@ def display_results(names_text):
                         safe_text = orjson.dumps(name).decode()
                         html_tmpl = """
                         <style>
-                          #copy-IDX{display:inline-flex;align-items:center;justify-content:center;width:100%;height:40px;background:#1565C0;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;white-space:nowrap}
+                          #copy-IDX{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:100%;height:40px;line-height:40px;padding:0 16px;background:#1565C0;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
                           #copy-IDX.copied{background:#2E7D32}
                         </style>
                         <button id='copy-IDX'>📋 Copy Name</button>
@@ -142,7 +142,14 @@ def display_results(names_text):
                         )
                     
                     with btn_cols[1]:
-                        st.button("🎨 Logo", key=f"logo_{idx}", use_container_width=True)
+                        # Visual-only Logo button matching Copy button size
+                        logo_html = """
+                        <style>
+                          #logo-IDX{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:100%;height:40px;line-height:40px;padding:0 16px;background:#1565C0;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
+                        </style>
+                        <button id='logo-IDX'>🎨 Logo</button>
+                        """
+                        components.html(logo_html.replace("IDX", str(idx)), height=46)
     
     # Logo Generation Section
     if names:
