@@ -3,11 +3,14 @@ Results display logic for generated names.
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 import orjson
 import pandas as pd
 import io
+import html as html_lib
 from core.fallback_generator import generate_fallback_names
 from logo_generator import render_logo_section
+
 
 def display_results(names_text):
     """Display generated names with actions"""
@@ -102,17 +105,44 @@ def display_results(names_text):
                 idx = i + j
                 
                 with col:
-                    # Enhanced card styling with hover effects
+                    # Enhanced card styling with hover effects (escape name for safety)
+                    safe_name = html_lib.escape(name)
                     st.markdown(f'''
                     <div class="name-card">
-                        <div class="name-title">{name}</div>
+                        <div class="name-title">{safe_name}</div>
                     </div>
                     ''', unsafe_allow_html=True)
                     
                     # Action buttons in a more compact layout
                     btn_cols = st.columns(2)
                     with btn_cols[0]:
-                        st.button("📋 Copy", key=f"copy_{idx}", on_click=lambda n=name: st.session_state.update({"clipboard": n}), use_container_width=True)
+                        # Client-side copy button (no rerun; reliable clipboard)
+                        safe_text = orjson.dumps(name).decode()
+                        html_tmpl = """
+                        <style>
+                          #copy-IDX{display:inline-flex;align-items:center;justify-content:center;width:100%;height:40px;background:#1565C0;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;white-space:nowrap}
+                          #copy-IDX.copied{background:#2E7D32}
+                        </style>
+                        <button id='copy-IDX'>📋 Copy Name</button>
+                        <script>
+                          (function(){
+                            const btn = document.getElementById('copy-IDX');
+                            if(!btn) return;
+                            btn.addEventListener('click', async () => {
+                              try {
+                                await navigator.clipboard.writeText(TEXT_PLACE);
+                                btn.textContent = '✅ Copied';
+                                btn.classList.add('copied');
+                              } catch(e){ console.error(e); }
+                            });
+                          })();
+                        </script>
+                        """
+                        components.html(
+                            html_tmpl.replace("IDX", str(idx)).replace("TEXT_PLACE", safe_text),
+                            height=46,
+                        )
+                    
                     with btn_cols[1]:
                         st.button("🎨 Logo", key=f"logo_{idx}", use_container_width=True)
     
