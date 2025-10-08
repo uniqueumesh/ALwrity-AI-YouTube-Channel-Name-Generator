@@ -13,6 +13,32 @@ def display_results(names_text):
     """Display generated names with actions"""
     st.markdown('<h3 style="margin-top:2rem; color:#1976D2;">🎬 Generated YouTube Channel Names</h3>', unsafe_allow_html=True)
     
+    # Add responsive grid styling
+    st.markdown("""
+    <style>
+    .name-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+    }
+    .name-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .name-title {
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #1976D2;
+        text-align: center;
+        margin-bottom: 0.75rem;
+        word-break: break-word;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     # Parse the response
     try:
         # Try to extract JSON from response
@@ -60,16 +86,35 @@ def display_results(names_text):
         st.warning("No names were returned. Try adjusting your inputs and generate again.")
         return
     
-    # Display names
-    for idx, name in enumerate(names):
-        with st.container(border=True):
-            st.markdown(f"**{name}**")
-            
-            cols = st.columns(2)
-            with cols[0]:
-                st.button("Copy", key=f"copy_{idx}", on_click=lambda n=name: st.session_state.update({"clipboard": n}))
-            with cols[1]:
-                st.button("Generate Logo", key=f"logo_{idx}")
+    # Display names in optimized multi-column grid
+    st.markdown(f'<div style="margin-bottom: 1rem; padding: 0.5rem; background: #e3f2fd; border-radius: 8px; text-align: center;"><strong>📊 Generated {len(names)} unique channel names</strong></div>', unsafe_allow_html=True)
+    
+    # Calculate number of columns based on screen size (3-4 columns)
+    num_columns = min(4, len(names)) if len(names) >= 3 else len(names)
+    
+    # Create grid layout
+    for i in range(0, len(names), num_columns):
+        cols = st.columns(num_columns)
+        
+        for j, col in enumerate(cols):
+            if i + j < len(names):
+                name = names[i + j]
+                idx = i + j
+                
+                with col:
+                    # Enhanced card styling with hover effects
+                    st.markdown(f'''
+                    <div class="name-card">
+                        <div class="name-title">{name}</div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+                    
+                    # Action buttons in a more compact layout
+                    btn_cols = st.columns(2)
+                    with btn_cols[0]:
+                        st.button("📋 Copy", key=f"copy_{idx}", on_click=lambda n=name: st.session_state.update({"clipboard": n}), use_container_width=True)
+                    with btn_cols[1]:
+                        st.button("🎨 Logo", key=f"logo_{idx}", use_container_width=True)
     
     # Logo Generation Section
     if names:
