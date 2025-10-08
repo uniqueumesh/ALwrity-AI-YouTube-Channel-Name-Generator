@@ -62,13 +62,6 @@ def main():
     st.title("🎬 ALwrity AI YouTube Channel Name Generator")
     st.caption("Free & Open Source • Powered by Gemini 2.5 Flash")
 
-    # API Configuration Section
-    with st.expander("API Configuration 🔑", expanded=False):
-        st.markdown('''If the default Gemini API key is unavailable or exceeds its limits, you can provide your own API key below.<br>
-        <a href="https://aistudio.google.com/app/apikey" target="_blank">Get Gemini API Key</a>
-        ''', unsafe_allow_html=True)
-        user_gemini_api_key = st.text_input("Gemini API Key", type="password", help="Paste your Gemini API Key here if you have one. Otherwise, the tool will use the default key if available.")
-
     
     # Main Input Section
     with st.expander("**PRO-TIP** - Follow the steps below for best results.", expanded=True):
@@ -127,7 +120,7 @@ def main():
                 
                 channel_names = generate_youtube_names(
                     input_description, input_language, input_tone, input_variants, 
-                    user_gemini_api_key
+                    None
                 )
                 
                 if channel_names:
@@ -140,7 +133,6 @@ def main():
                     - Use more general keywords
                     - Avoid potentially sensitive topics
                     - Try a different tone or language
-                    - Check your API key if using a custom one
                     """)
 
     # Display Results
